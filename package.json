@@ -1,0 +1,12 @@
+{
+  "name": "daily-project-generator",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A generator that creates a new starter project each day.",
+  "type": "module",
+  "scripts": {
+    "generate": "node src/index.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
