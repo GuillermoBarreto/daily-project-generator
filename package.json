@@ -5,7 +5,8 @@
   "description": "A generator that creates a new starter project each day.",
   "type": "module",
   "scripts": {
-    "generate": "node src/index.js"
+    "generate": "node src/index.js",
+    "test": "node --test"
   },
   "dependencies": {},
   "devDependencies": {}
