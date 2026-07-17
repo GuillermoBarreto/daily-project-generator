@@ -6,8 +6,21 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { generateDailyProject } from '../src/index.js'
 
-test('generateDailyProject creates starter files', async () => {
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'daily-project-generator-'))
+function createTempDir(prefix) {
+  return fs.mkdtempSync(path.join(os.tmpdir(), prefix))
+}
+
+function readFile(projectDir, file) {
+  return fs.readFileSync(path.join(projectDir, file), 'utf8')
+}
+
+test('generateDailyProject creates starter files', async (t) => {
+  const tempRoot = createTempDir('daily-project-generator-')
+
+  t.after(() => {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  })
+
   const result = await generateDailyProject({
     outputDir: tempRoot,
     projectName: 'custom-project',
@@ -15,52 +28,109 @@ test('generateDailyProject creates starter files', async () => {
     description: 'Test project'
   })
 
-  assert.equal(result.projectPath, path.join(tempRoot, 'custom-project'))
-  assert.ok(fs.existsSync(path.join(result.projectPath, 'README.md')))
-  assert.ok(fs.existsSync(path.join(result.projectPath, 'package.json')))
-  assert.ok(fs.existsSync(path.join(result.projectPath, 'src/index.js')))
+  assert.equal(
+    result.projectPath,
+    path.join(tempRoot, 'custom-project')
+  )
 
-  const readme = fs.readFileSync(path.join(result.projectPath, 'README.md'), 'utf8')
+  assert.ok(
+    fs.existsSync(path.join(result.projectPath, 'README.md')),
+    'README.md should exist'
+  )
+
+  assert.ok(
+    fs.existsSync(path.join(result.projectPath, 'package.json')),
+    'package.json should exist'
+  )
+
+  assert.ok(
+    fs.existsSync(path.join(result.projectPath, 'src/index.js')),
+    'src/index.js should exist'
+  )
+
+  const readme = readFile(result.projectPath, 'README.md')
   assert.match(readme, /Test project/)
 })
 
-test('CLI entrypoint creates a daily project', () => {
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'daily-project-generator-cli-'))
-  const result = spawnSync(process.execPath, ['src/index.js'], {
-    cwd: path.resolve(process.cwd()),
-    env: {
-      ...process.env,
-      DAILY_PROJECT_OUTPUT_DIR: tempRoot
-    },
-    encoding: 'utf8'
+test('CLI entrypoint creates a daily project', (t) => {
+  const tempRoot = createTempDir('daily-project-generator-cli-')
+
+  t.after(() => {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
   })
 
+  const testDate = '2026-07-15'
+
+  const result = spawnSync(
+    process.execPath,
+    [
+      'src/index.js',
+      '--output-dir',
+      tempRoot,
+      '--date',
+      testDate
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8'
+    }
+  )
+
   assert.equal(result.status, 0, result.stderr)
-  const createdProject = path.join(tempRoot, `project-${new Date().toISOString().slice(0, 10)}`)
-  assert.ok(fs.existsSync(path.join(createdProject, 'README.md')))
+
+  const createdProject = path.join(tempRoot, `project-${testDate}`)
+
+  assert.ok(
+    fs.existsSync(path.join(createdProject, 'README.md')),
+    'CLI should create README.md'
+  )
 })
 
-test('CLI flags create a project with custom metadata', () => {
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'daily-project-generator-flags-'))
-  const result = spawnSync(process.execPath, [
-    'src/index.js',
-    '--output-dir', tempRoot,
-    '--name', 'flag-project',
-    '--description', 'Custom CLI project',
-    '--date', '2026-07-15'
-  ], {
-    cwd: path.resolve(process.cwd()),
-    encoding: 'utf8'
+test('CLI flags create a project with custom metadata', (t) => {
+  const tempRoot = createTempDir('daily-project-generator-flags-')
+
+  t.after(() => {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
   })
 
-  assert.equal(result.status, 0, result.stderr)
-  const projectDir = path.join(tempRoot, 'flag-project')
-  assert.ok(fs.existsSync(path.join(projectDir, 'README.md')))
-  assert.ok(fs.existsSync(path.join(projectDir, '.gitignore')))
+  const result = spawnSync(
+    process.execPath,
+    [
+      'src/index.js',
+      '--output-dir',
+      tempRoot,
+      '--name',
+      'flag-project',
+      '--description',
+      'Custom CLI project',
+      '--date',
+      '2026-07-15'
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8'
+    }
+  )
 
-  const packageJson = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf8'))
+  assert.equal(result.status, 0, result.stderr)
+
+  const projectDir = path.join(tempRoot, 'flag-project')
+
+  assert.ok(
+    fs.existsSync(path.join(projectDir, 'README.md')),
+    'README.md should exist'
+  )
+
+  assert.ok(
+    fs.existsSync(path.join(projectDir, '.gitignore')),
+    '.gitignore should exist'
+  )
+
+  const packageJson = JSON.parse(readFile(projectDir, 'package.json'))
+
   assert.equal(packageJson.name, 'flag-project')
 
-  const readme = fs.readFileSync(path.join(projectDir, 'README.md'), 'utf8')
+  const readme = readFile(projectDir, 'README.md')
+
   assert.match(readme, /Custom CLI project/)
 })
