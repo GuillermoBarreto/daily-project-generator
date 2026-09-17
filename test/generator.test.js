@@ -14,6 +14,15 @@ function readFile(projectDir, file) {
   return fs.readFileSync(path.join(projectDir, file), 'utf8')
 }
 
+test('generated entrypoint handles quotes in project names', async (t) => {
+  const tempRoot = createTempDir('daily-project-quotes-')
+  t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }))
+  const result = await generateDailyProject({ outputDir: tempRoot, projectName: "today's-project" })
+  const run = spawnSync(process.execPath, [path.join(result.projectPath, 'src/index.js')], { encoding: 'utf8' })
+  assert.equal(run.status, 0, run.stderr)
+  assert.equal(run.stdout.trim(), "Hello from today's-project!")
+})
+
 test('generateDailyProject creates starter files', async (t) => {
   const tempRoot = createTempDir('daily-project-generator-')
 

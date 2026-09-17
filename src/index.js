@@ -71,7 +71,7 @@ export async function generateDailyProject({
 
   fs.writeFileSync(
     path.join(projectPath, 'src/index.js'),
-    `console.log('Hello from ${projectName}!')\n`
+    `console.log(${JSON.stringify(`Hello from ${projectName}!`)})\n`
   )
 
   fs.writeFileSync(
