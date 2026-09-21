@@ -143,3 +143,26 @@ test('CLI flags create a project with custom metadata', (t) => {
 
   assert.match(readme, /Custom CLI project/)
 })
+
+test('generateDailyProject reports already-exists when the project folder exists', async (t) => {
+  const tempRoot = createTempDir('daily-project-generator-exists-')
+
+  t.after(() => {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  })
+
+  const options = {
+    outputDir: tempRoot,
+    projectName: 'duplicate-project',
+    date: '2026-07-15',
+    description: 'Test project'
+  }
+
+  const first = await generateDailyProject(options)
+  assert.equal(first.created, true)
+
+  const second = await generateDailyProject(options)
+  assert.equal(second.created, false)
+  assert.equal(second.reason, 'already-exists')
+  assert.equal(second.projectPath, path.join(tempRoot, 'duplicate-project'))
+})
