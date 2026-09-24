@@ -96,7 +96,7 @@ async function main() {
   const result = await generateDailyProject({ outputDir, projectName, date, description: cliArgs.description })
 
   if (!result.created) {
-    console.log(`A project already exists for today: ${projectName}`)
+    console.log(`A project named "${projectName}" already exists at ${result.projectPath}`)
     return
   }
 
