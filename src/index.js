@@ -26,6 +26,8 @@ function parseCliArgs(argv) {
       index += 1
     } else if (arg === '--help' || arg === '-h') {
       options.help = true
+    } else if (arg.startsWith('--')) {
+      console.warn(`Warning: unknown option "${arg}" was ignored`)
     }
   }
 
