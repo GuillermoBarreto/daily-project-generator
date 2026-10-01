@@ -166,3 +166,29 @@ test('generateDailyProject reports already-exists when the project folder exists
   assert.equal(second.reason, 'already-exists')
   assert.equal(second.projectPath, path.join(tempRoot, 'duplicate-project'))
 })
+
+test('CLI rejects an invalid --date with an error and exit code 1', (t) => {
+  const tempRoot = createTempDir('daily-project-generator-bad-date-')
+
+  t.after(() => {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  })
+
+  const result = spawnSync(
+    process.execPath,
+    [
+      'src/index.js',
+      '--output-dir',
+      tempRoot,
+      '--date',
+      'not-a-date'
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8'
+    }
+  )
+
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /Invalid --date "not-a-date"/)
+})
