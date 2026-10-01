@@ -98,6 +98,10 @@ async function main() {
     process.exit(1)
   }
   const projectName = cliArgs.projectName || `project-${date}`
+  if (projectName !== path.basename(projectName) || projectName === '.' || projectName === '..') {
+    console.error(`Invalid --name "${projectName}". The project name must be a single folder name without path separators.`)
+    process.exit(1)
+  }
   const outputDir = resolveOutputDir(cliArgs.outputDir)
   const result = await generateDailyProject({ outputDir, projectName, date, description: cliArgs.description })
 
