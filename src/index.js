@@ -34,6 +34,16 @@ function parseCliArgs(argv) {
   return options
 }
 
+function isValidCalendarDate(dateString) {
+  const [year, month, day] = dateString.split('-').map(Number)
+  const parsed = new Date(Date.UTC(year, month - 1, day))
+  return (
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
+  )
+}
+
 export async function generateDailyProject({
   outputDir = resolveOutputDir(),
   projectName = `project-${new Date().toISOString().slice(0, 10)}`,
@@ -93,8 +103,8 @@ async function main() {
   }
 
   const date = cliArgs.date || new Date().toISOString().slice(0, 10)
-  if (cliArgs.date && !/^\d{4}-\d{2}-\d{2}$/.test(cliArgs.date)) {
-    console.error(`Invalid --date "${cliArgs.date}". Expected format: yyyy-mm-dd`)
+  if (cliArgs.date && (!/^\d{4}-\d{2}-\d{2}$/.test(cliArgs.date) || !isValidCalendarDate(cliArgs.date))) {
+    console.error(`Invalid --date "${cliArgs.date}". Expected a real calendar date in yyyy-mm-dd format.`)
     process.exit(1)
   }
   const projectName = cliArgs.projectName || `project-${date}`
