@@ -192,3 +192,63 @@ test('CLI rejects an invalid --date with an error and exit code 1', (t) => {
   assert.equal(result.status, 1)
   assert.match(result.stderr, /Invalid --date "not-a-date"/)
 })
+
+test('CLI rejects an impossible --date like 2026-13-99', (t) => {
+  const tempRoot = createTempDir('daily-project-generator-bad-cal-')
+
+  t.after(() => {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  })
+
+  const result = spawnSync(
+    process.execPath,
+    [
+      'src/index.js',
+      '--output-dir',
+      tempRoot,
+      '--date',
+      '2026-13-99'
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8'
+    }
+  )
+
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /Invalid --date "2026-13-99"/)
+  assert.ok(
+    !fs.existsSync(path.join(tempRoot, 'project-2026-13-99')),
+    'no project folder should be created for an invalid date'
+  )
+})
+
+test('CLI rejects a --name containing path separators', (t) => {
+  const tempRoot = createTempDir('daily-project-generator-bad-name-')
+
+  t.after(() => {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  })
+
+  const result = spawnSync(
+    process.execPath,
+    [
+      'src/index.js',
+      '--output-dir',
+      tempRoot,
+      '--name',
+      '../evil-name'
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8'
+    }
+  )
+
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /Invalid --name/)
+  assert.ok(
+    !fs.existsSync(path.join(tempRoot, '..', 'evil-name')),
+    'no folder should be created outside the output dir'
+  )
+})
