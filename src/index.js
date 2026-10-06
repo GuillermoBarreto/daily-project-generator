@@ -6,6 +6,16 @@ function resolveOutputDir(explicitOutputDir) {
   return explicitOutputDir || process.env.DAILY_PROJECT_OUTPUT_DIR || path.resolve(process.cwd(), 'daily-projects')
 }
 
+
+function getPackageVersion() {
+  try {
+    const packageJson = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+    return packageJson.version || 'unknown'
+  } catch {
+    return 'unknown'
+  }
+}
+
 function parseCliArgs(argv) {
   const options = {}
 
@@ -26,6 +36,8 @@ function parseCliArgs(argv) {
       index += 1
     } else if (arg === '--help' || arg === '-h') {
       options.help = true
+    } else if (arg === '--version' || arg === '-v') {
+      options.version = true
     } else if (arg.startsWith('--')) {
       console.warn(`Warning: unknown option "${arg}" was ignored`)
     }
@@ -97,8 +109,13 @@ export async function generateDailyProject({
 async function main() {
   const cliArgs = parseCliArgs(process.argv.slice(2))
 
+  if (cliArgs.version) {
+    console.log(`daily-project-generator v${getPackageVersion()}`)
+    return
+  }
+
   if (cliArgs.help) {
-    console.log('Usage: node src/index.js [options]\n\nOptions:\n  --output-dir <path>  Directory where projects are created\n  --name <name>        Project folder name\n  --description <text> Short project description\n  --date <yyyy-mm-dd>  Date used in the generated README')
+    console.log('Usage: node src/index.js [options]\n\nOptions:\n  --output-dir <path>  Directory where projects are created\n  --name <name>        Project folder name\n  --description <text> Short project description\n  --date <yyyy-mm-dd>  Date used in the generated README\n  --version            Print the CLI version and exit')
     return
   }
 

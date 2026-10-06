@@ -252,3 +252,26 @@ test('CLI rejects a --name containing path separators', (t) => {
     'no folder should be created outside the output dir'
   )
 })
+
+test('CLI --version prints the package version and exits 0', (t) => {
+  const result = spawnSync(
+    process.execPath,
+    ['src/index.js', '--version'],
+    { cwd: process.cwd(), encoding: 'utf8' }
+  )
+
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout.trim(), /^daily-project-generator v\d+\.\d+\.\d+$/)
+})
+
+test('CLI -v is a short alias for --version', (t) => {
+  const result = spawnSync(
+    process.execPath,
+    ['src/index.js', '-v'],
+    { cwd: process.cwd(), encoding: 'utf8' }
+  )
+
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout.trim(), /^daily-project-generator v/)
+})
+
