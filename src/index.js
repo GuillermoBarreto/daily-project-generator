@@ -115,7 +115,7 @@ async function main() {
   }
 
   if (cliArgs.help) {
-    console.log('Usage: node src/index.js [options]\n\nOptions:\n  --output-dir <path>  Directory where projects are created\n  --name <name>        Project folder name\n  --description <text> Short project description\n  --date <yyyy-mm-dd>  Date used in the generated README\n  --version            Print the CLI version and exit')
+    console.log('Usage: node src/index.js [options]\n\nOptions:\n  --output-dir <path>  Directory where projects are created\n  --name <name>        Project folder name\n  --description <text> Short project description\n  --date <yyyy-mm-dd>  Date used in the generated README\n  --version            Print the CLI version and exit\n  --help, -h         Show this help message and exit')
     return
   }
 
