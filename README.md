@@ -20,7 +20,7 @@ node src/index.js --name my-idea --description "What I want to build"
 node src/index.js --help
 ```
 
-Options: `--output-dir`, `--name`, `--description`, `--date`, `--help`
+Options: `--output-dir`, `--name`, `--description`, `--date`, `--help`/`-h`, `--version`/`-v`
 
 ## Tests
 
