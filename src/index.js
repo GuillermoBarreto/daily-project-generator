@@ -18,21 +18,25 @@ function getPackageVersion() {
 
 function parseCliArgs(argv) {
   const options = {}
+  const valueFlags = {
+    '--output-dir': 'outputDir',
+    '--name': 'projectName',
+    '--description': 'description',
+    '--date': 'date',
+  }
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]
 
-    if (arg === '--output-dir') {
-      options.outputDir = argv[index + 1]
-      index += 1
-    } else if (arg === '--name') {
-      options.projectName = argv[index + 1]
-      index += 1
-    } else if (arg === '--description') {
-      options.description = argv[index + 1]
-      index += 1
-    } else if (arg === '--date') {
-      options.date = argv[index + 1]
+    if (arg in valueFlags) {
+      const value = argv[index + 1]
+      if (value === undefined || value.startsWith('-')) {
+        // A flag with no value (or followed by another flag) is a usage
+        // error, not something to silently ignore: --output-dir on its own
+        // used to fall back to the default dir without telling the user.
+        throw new Error(`Missing value for "${arg}". Usage: ${arg} <value>`)
+      }
+      options[valueFlags[arg]] = value
       index += 1
     } else if (arg === '--help' || arg === '-h') {
       options.help = true
@@ -107,7 +111,13 @@ export async function generateDailyProject({
 }
 
 async function main() {
-  const cliArgs = parseCliArgs(process.argv.slice(2))
+  let cliArgs
+  try {
+    cliArgs = parseCliArgs(process.argv.slice(2))
+  } catch (error) {
+    console.error(error.message)
+    process.exit(2)
+  }
 
   if (cliArgs.version) {
     console.log(`daily-project-generator v${getPackageVersion()}`)
