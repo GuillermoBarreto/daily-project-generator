@@ -132,12 +132,12 @@ async function main() {
   const date = cliArgs.date || new Date().toISOString().slice(0, 10)
   if (cliArgs.date && (!/^\d{4}-\d{2}-\d{2}$/.test(cliArgs.date) || !isValidCalendarDate(cliArgs.date))) {
     console.error(`Invalid --date "${cliArgs.date}". Expected a real calendar date in yyyy-mm-dd format.`)
-    process.exit(1)
+    process.exit(2)
   }
   const projectName = cliArgs.projectName || `project-${date}`
   if (projectName !== path.basename(projectName) || projectName === '.' || projectName === '..') {
     console.error(`Invalid --name "${projectName}". The project name must be a single folder name without path separators.`)
-    process.exit(1)
+    process.exit(2)
   }
   const outputDir = resolveOutputDir(cliArgs.outputDir)
   const result = await generateDailyProject({ outputDir, projectName, date, description: cliArgs.description })
