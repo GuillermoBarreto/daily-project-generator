@@ -167,7 +167,7 @@ test('generateDailyProject reports already-exists when the project folder exists
   assert.equal(second.projectPath, path.join(tempRoot, 'duplicate-project'))
 })
 
-test('CLI rejects an invalid --date with an error and exit code 1', (t) => {
+test('CLI rejects an invalid --date with an error and exit code 2', (t) => {
   const tempRoot = createTempDir('daily-project-generator-bad-date-')
 
   t.after(() => {
@@ -189,11 +189,11 @@ test('CLI rejects an invalid --date with an error and exit code 1', (t) => {
     }
   )
 
-  assert.equal(result.status, 1)
+  assert.equal(result.status, 2)
   assert.match(result.stderr, /Invalid --date "not-a-date"/)
 })
 
-test('CLI rejects an impossible --date like 2026-13-99', (t) => {
+test('CLI rejects an impossible --date with an error and exit code 2', (t) => {
   const tempRoot = createTempDir('daily-project-generator-bad-cal-')
 
   t.after(() => {
@@ -215,7 +215,7 @@ test('CLI rejects an impossible --date like 2026-13-99', (t) => {
     }
   )
 
-  assert.equal(result.status, 1)
+  assert.equal(result.status, 2)
   assert.match(result.stderr, /Invalid --date "2026-13-99"/)
   assert.ok(
     !fs.existsSync(path.join(tempRoot, 'project-2026-13-99')),
@@ -223,7 +223,7 @@ test('CLI rejects an impossible --date like 2026-13-99', (t) => {
   )
 })
 
-test('CLI rejects a --name containing path separators', (t) => {
+test('CLI rejects a --name containing path separators with exit code 2', (t) => {
   const tempRoot = createTempDir('daily-project-generator-bad-name-')
 
   t.after(() => {
@@ -245,7 +245,7 @@ test('CLI rejects a --name containing path separators', (t) => {
     }
   )
 
-  assert.equal(result.status, 1)
+  assert.equal(result.status, 2)
   assert.match(result.stderr, /Invalid --name/)
   assert.ok(
     !fs.existsSync(path.join(tempRoot, '..', 'evil-name')),
